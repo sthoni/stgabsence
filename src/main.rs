@@ -17,6 +17,19 @@ struct Record {
     aktualisiert: String,
 }
 
+struct RecordWithMinutes {
+    abwesenheitszeit: i64,
+    name: String,
+    status: String,
+    aktualisiert: String,
+}
+
+struct AbsenceSum {
+    abwesenheitszeit: i64,
+    name: String,
+    status: String,
+}
+
 const SCHOOL_HOUR_IN_MINUTES: i64 = 67;
 const SCHOOL_DAY_IN_MINUTES: i64 = SCHOOL_HOUR_IN_MINUTES * 4;
 
