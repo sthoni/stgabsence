@@ -44,17 +44,21 @@ impl RecordAbsenceInHours {
 
 #[derive(Debug, Serialize)]
 struct RecordAbsenceSum {
+    #[serde(rename = "Name")]
     name: String,
-    abwesenheitszeit_entschuldigt: f64,
-    abwesenheitszeit_unentschuldigt: f64,
-    abwesenheitszeit_summe: f64,
+    #[serde(rename = "Entschuldigt")]
+    abwesenheitszeit_entschuldigt: i32,
+    #[serde(rename = "Unentschuldigt")]
+    abwesenheitszeit_unentschuldigt: i32,
+    #[serde(rename = "Gesamt")]
+    abwesenheitszeit_summe: i32,
 }
 
 impl RecordAbsenceSum {
     fn new(
         name: String,
-        abwesenheitszeit_entschuldigt: f64,
-        abwesenheitszeit_unentschuldigt: f64,
+        abwesenheitszeit_entschuldigt: i32,
+        abwesenheitszeit_unentschuldigt: i32,
     ) -> Self {
         let abwesenheitszeit_summe =
             abwesenheitszeit_entschuldigt + abwesenheitszeit_unentschuldigt;
@@ -99,9 +103,10 @@ fn convert_absence_in_hours(file: File) -> Result<Vec<RecordAbsenceInHours>, Box
     let mut rdr = csv::ReaderBuilder::new().delimiter(b';').from_reader(file);
     let mut records_absence_in_hours: Vec<RecordAbsenceInHours> = vec![];
     let abwesenheit_time_format = format_description!("[hour]:[minute]");
-    let abwesenheit_date_format = format_description!("[day]:[month]:[year]");
+    let abwesenheit_date_format = format_description!("[day].[month].[year]");
     for result in rdr.deserialize() {
         let record: Record = result?;
+        println!("{:?}", record);
         let abwesenheitszeit: f64;
         let status = if record.status == "entschuldigt" {
             Status::Entschuldigt
@@ -152,7 +157,8 @@ fn calculate_absence_sum(records: Vec<RecordAbsenceInHours>) -> Vec<RecordAbsenc
             .iter()
             .filter(|r| r.name == name && r.status == Status::Unentschuldigt)
             .fold(0.0, |acc, r| acc + r.abwesenheitszeit);
-        let record_absence_sum = RecordAbsenceSum::new(name, sum_entschuldigt, sum_unentschuldigt);
+        let record_absence_sum =
+            RecordAbsenceSum::new(name, sum_entschuldigt as i32, sum_unentschuldigt as i32);
         records_with_absence_sum.push(record_absence_sum);
     }
     records_with_absence_sum
